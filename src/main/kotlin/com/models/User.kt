@@ -1,20 +1,14 @@
-package com.models;
+package com.models
 
-import javax.persistence.*;
+import javax.persistence.Table
+import javax.persistence.Entity
+import javax.persistence.Id
 
 @Entity
-@Table(name = "users")
-public class User {
+@Table(name="users")
+class User (
     @Id
-    @Column(name = "id")
-    @SequenceGenerator(name = "usersIdSeq", sequenceName = "users_id_seq", allocationSize = 1)
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "usersIdSeq")
-    private Integer id;
-
-    @Column(name = "name")
-    private String name;
-
-    @Column(name = "email")
-    private String email;
-
-}
+    val id: Int,
+    val name: String,
+    val email: String
+)
