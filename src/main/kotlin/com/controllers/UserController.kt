@@ -10,10 +10,10 @@ import com.models.User
 
 
 @RestController
-class CustomerController(val userService: UserService) {
+class UserController(val userService: UserService) {
 
   @GetMapping
-  fun getCustomers():List<User> {
+  fun getUsers():List<User> {
     return userService.getUsers()
   }
 

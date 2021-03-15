@@ -1,26 +1,23 @@
 package com.controllers
 
-import com.services.CustomerService
-import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
 import org.springframework.http.HttpStatus
 import org.springframework.beans.factory.annotation.Autowired
+import com.services.CustomerService
 import com.models.Customer
 
-
 @RestController
-class UserController(val customerService: CustomerService) {
+@RequestMapping("/customers")
+class CustomerController(val customerService: CustomerService) {
 
     @GetMapping
-    fun getUsers():List<Customer> {
-      return customerService.getCustomers()
+    fun index(): List<Customer> {
+      return customerService.allCustomers()
     }
 
-    @PutMapping
-    fun saveUser(@RequestBody customer: Customer) {
-        val customer = Customer()
-        // userService.createUser(user)
+    @PostMapping
+    fun create(@RequestBody customer: Customer): Customer {
+      return customerService.addCustomer(customer)
     }
-
 }
