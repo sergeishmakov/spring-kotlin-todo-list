@@ -1,12 +1,14 @@
 package com.models
 
+import javax.persistence.Table
 import javax.persistence.Entity
 import javax.persistence.Id
 
 @Entity
-data class Customer {
+// @Table(name="customers")
+class Customer (
     @Id
-    Long id;
-    String firstName;
-    LocalDate dob;
-}
+    val id: Int,
+    val name: String,
+    val email: String
+)

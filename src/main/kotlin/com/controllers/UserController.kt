@@ -10,16 +10,18 @@ import com.models.User
 
 
 @RestController
-class UserController(val userService: UserService) {
+class CustomerController(val userService: UserService) {
 
   @GetMapping
-  fun getUsers():List<User> {
+  fun getCustomers():List<User> {
     return userService.getUsers()
-  
-}
+  }
 
-@GetMapping
-
+  @PutMapping
+  fun saveUser(@RequestBody user: User) {
+      //val user = User(1,"Test")
+      userService.createUser(user)
+  }
 
   // @GetMapping("/{id}")
   // fun show(@PathVariable id: Long) =

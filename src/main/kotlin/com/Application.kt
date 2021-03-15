@@ -6,24 +6,29 @@ import org.springframework.boot.runApplication
 @SpringBootApplication
 class Application
 
-@Configuration
-class Configuration {
+// @Configuration
+// @EnableJdbcRepositories (1)
+// public class CustomerConfig extends JdbcConfiguration { (2)
 
-    @Bean(name = arrayOf("dataSource"))
-    fun dataSource(): DataSource {
+//     @Bean
+//     NamedParameterJdbcOperations operations() { (3)
+//         return new NamedParameterJdbcTemplate(dataSource());
+//     }
 
-        return EmbeddedDatabaseBuilder()
-                .setType(EmbeddedDatabaseType.HSQL)
-                .addScript("schema.sql")
-                .build()
-    }
+//     @Bean
+//     PlatformTransactionManager transactionManager() { (4)
+//         return new DataSourceTransactionManager(dataSource());
+//     }
 
-    //Create a JdbcTemplate Bean that connects to our database
-    @Bean
-    fun jdbcTemplate(@Qualifier("dataSource") dataSource: DataSource): JdbcTemplate {
-        return JdbcTemplate(dataSource)
-    }
-}
+//     @Bean
+//     DataSource dataSource(){ (5)
+//         return new EmbeddedDatabaseBuilder()
+//                 .generateUniqueName(true)
+//                 .setType(EmbeddedDatabaseType.HSQL)
+//                 .addScript("create-customer-schema.sql")
+//                 .build();
+//     }
+// }
 
 fun main(args: Array<String>) {
 	runApplication<Application>(*args)
