@@ -7,6 +7,7 @@ plugins {
 	kotlin("plugin.spring") version "1.4.30"
     kotlin("plugin.jpa") version "1.4.30"
 
+
 }
 
 group = "com.example"
@@ -27,13 +28,15 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
 	implementation("org.springframework.boot:spring-boot-starter-web")
 	implementation("org.springframework.boot:spring-boot-starter-jdbc")
-
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
 	implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
 	annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	implementation("org.postgresql:postgresql")
+	implementation("org.springframework.boot:spring-boot-starter-security")
+    implementation("org.springframework.security:spring-security-test")
+	implementation("javax.validation:validation-api:2.0.1.Final")
 }
 
 tasks.withType<KotlinCompile> {
