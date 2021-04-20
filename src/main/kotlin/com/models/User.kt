@@ -1,19 +1,17 @@
 package com.models
 
-import javax.persistence.Table
-import javax.persistence.Entity
-import javax.persistence.Id
+import com.constants.Roles
+import javax.persistence.*
 
-//import javax.validation.constraints.Email
-//import javax.validation.constraints.NotNull
 
 @Entity
 @Table(name="users")
 class User (
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Int,
     val name: String,
-    @NotNull(message = "Email should be valid")
     val email: String,
-    val password: String,
+    var password: String,
+    val role: Roles
 )

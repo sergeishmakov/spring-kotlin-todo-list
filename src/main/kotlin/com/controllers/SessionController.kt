@@ -3,25 +3,18 @@ package com.controllers
 import com.services.UserService
 import org.springframework.web.bind.annotation.*
 import com.models.User
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.crypto.password.PasswordEncoder
-import java.lang.Exception
-
-
-@Autowired
-private val passwordEncoder: PasswordEncoder? = null
+import javax.validation.Valid
 
 @RestController
 @RequestMapping("/session")
-class SessionController(val userService: UserService) {
+class SessionController(val userService: UserService, private var passwordEncoder: PasswordEncoder) {
 
     @PostMapping("/sign_up")
-    fun signUp(@RequestBody data: User): User {
-        if (data.email.isBlank()) {
-            throw Exception(
-                "There is an account with that email address:" + data.email);
-        }
+    fun signUp(@Valid @RequestBody data: User): Boolean {
 
-        return userService.createUser(data)
+        data.password = passwordEncoder.encode(data.password).toString()
+        userService.createUser(data)
+        return true
     }
 }
