@@ -8,6 +8,7 @@ import com.services.AuthService
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.SignatureAlgorithm
 import org.springframework.http.ResponseEntity
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.crypto.password.PasswordEncoder
@@ -28,12 +29,13 @@ val invalidResponseEntity: ResponseEntity<Any>  = ResponseEntity.badRequest().bo
 
 @RestController
 @RequestMapping("/session")
-class SessionController(val userService: UserService, private var passwordEncoder: PasswordEncoder) {
+class SessionController(val userService: UserService, val passwordEncoder: PasswordEncoder) {
 
     @PostMapping("/sign_up")
+    @PreAuthorize("permitAll()")
     fun signUp(@Valid @RequestBody data: User): Boolean {
 
-        data.password = passwordEncoder.encode(data.password).toString()
+        data.password = passwordEncoder.encode(data.password)
         var result = userService.createUser(data)
 
         return true
@@ -44,9 +46,9 @@ class SessionController(val userService: UserService, private var passwordEncode
         val user = userService.getUserByEmail(data.email)
             ?: return invalidResponseEntity
 
-        if (user.password == passwordEncoder.encode(data.password)) {
-            return invalidResponseEntity
-        }
+//        if (user.password == passwordEncoder.encode(data.password)) {
+//            return invalidResponseEntity
+//        }
 
         val issuer = user.id.toString()
 

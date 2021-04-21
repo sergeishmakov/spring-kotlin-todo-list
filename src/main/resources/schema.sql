@@ -1,10 +1,10 @@
 CREATE TABLE IF NOT EXISTS users
 (
     id    BIGSERIAL PRIMARY KEY ,
-    name  VARCHAR(200) NOT NULL ,
     email VARCHAR(254) NOT NULL ,
     password VARCHAR NOT NULL,
-    role VARCHAR(200) NOT NULL
+    role VARCHAR(200) NOT NULL,
+    status VARCHAR(200) NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS customers (
