@@ -37,6 +37,8 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("org.springframework.security:spring-security-test")
 	implementation("javax.validation:validation-api:2.0.1.Final")
+	implementation("io.jsonwebtoken:jjwt:0.9.1")
+
 }
 
 tasks.withType<KotlinCompile> {

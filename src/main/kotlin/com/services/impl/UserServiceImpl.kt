@@ -11,8 +11,9 @@ class UserServiceImpl(
 ) : UserService {
     override fun getUsers() = userRepository.findAll()
 
+    override fun getUserByEmail(email: String) = userRepository.findByEmail(email)
+
     override fun createUser(user: User) {
-        val data = userRepository.save(user)
-        print(data)
+        userRepository.save(user)
     }
 }
