@@ -1,5 +1,6 @@
 package com.controllers
 
+import com.models.Permission
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.*
 
@@ -8,7 +9,7 @@ import org.springframework.web.bind.annotation.*
 class AdminsController() {
 
   @GetMapping("hello")
-  @PreAuthorize("hasAuthority('developers:write')")
+  @PreAuthorize("hasAuthority('admins:read')")
   fun hello():String{
     return "Hello Admin!"
   }

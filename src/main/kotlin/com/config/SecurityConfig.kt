@@ -1,50 +1,53 @@
 package com.config
 
-import com.models.Role
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.beans.factory.annotation.Qualifier
+import com.security.CustomAccessDeniedHandler
+import com.security.CustomAuthenticationEntryPoint
+import com.security.JwtTokenFilter
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.HttpMethod
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder
+import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
-import org.springframework.security.core.userdetails.UserDetailsService
+import org.springframework.security.config.http.SessionCreationPolicy
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.crypto.password.PasswordEncoder
+import org.springframework.security.web.AuthenticationEntryPoint
+import org.springframework.security.web.access.AccessDeniedHandler
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 
 
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
-public class WebSecurityConfig: WebSecurityConfigurerAdapter() {
-
-    private var userDetailsService: UserDetailsService? = null
-
-    @Autowired
-    fun WebSecurityConfig(@Qualifier("userDetailsServiceImpl") userDetailsService: UserDetailsService?) {
-        this.userDetailsService = userDetailsService
-    }
+public class WebSecurityConfig(val jwtTokenFilter: JwtTokenFilter): WebSecurityConfigurerAdapter() {
 
     override fun configure(http: HttpSecurity) {
+
         http.csrf().disable()
             .authorizeRequests()
             .antMatchers("/").permitAll()
-            .antMatchers("/session/sign_up").permitAll()
-//            .antMatchers("/api/admins/hello").hasAuthority("developers:read")
+            .antMatchers(HttpMethod.POST,"/session/sign_up").permitAll()
+            .antMatchers(HttpMethod.POST,"/session/sign_in").permitAll()
             .and()
             .authorizeRequests()
             .anyRequest()
             .authenticated()
             .and()
-            .httpBasic()
+            .sessionManagement()
+            .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+//            .and()
+//            .exceptionHandling().authenticationEntryPoint(authenticationEntryPoint()).accessDeniedHandler(accessDeniedHandler())
+            .and()
+            .addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter::class.java)
+
     }
 
-    override fun configure(auth: AuthenticationManagerBuilder) {
-        auth.authenticationProvider(daoAuthenticationProvider())
+    @Bean
+    override fun authenticationManagerBean(): AuthenticationManager {
+        return super.authenticationManagerBean()
     }
 
     @Bean
@@ -53,11 +56,13 @@ public class WebSecurityConfig: WebSecurityConfigurerAdapter() {
     }
 
     @Bean
-    protected fun daoAuthenticationProvider(): DaoAuthenticationProvider? {
-        print(userDetailsService)
-        val daoAuthenticationProvider = DaoAuthenticationProvider()
-        daoAuthenticationProvider.setPasswordEncoder(passwordEncoder())
-        daoAuthenticationProvider.setUserDetailsService(userDetailsService)
-        return daoAuthenticationProvider
+    fun authenticationEntryPoint(): AuthenticationEntryPoint? {
+        return CustomAuthenticationEntryPoint()
     }
+
+    @Bean
+    fun accessDeniedHandler(): AccessDeniedHandler? {
+        return CustomAccessDeniedHandler()
+    }
+
 }

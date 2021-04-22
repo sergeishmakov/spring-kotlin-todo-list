@@ -1,35 +1,34 @@
 package com.controllers
 
 import com.dtos.SignInDTO
-import com.services.UserService
-import org.springframework.web.bind.annotation.*
 import com.models.User
-import com.services.AuthService
-import io.jsonwebtoken.Jwts
-import io.jsonwebtoken.SignatureAlgorithm
+import com.repositories.UserRepository
+import com.security.JwtAuthenticationException
+import com.security.JwtTokenProvider
+import com.services.UserService
+import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
-import org.springframework.security.core.Authentication
-import org.springframework.security.core.context.SecurityContextHolder
+import org.springframework.security.authentication.AuthenticationManager
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
+import org.springframework.security.core.AuthenticationException
+import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.security.crypto.password.PasswordEncoder
-import java.util.*
-import javax.servlet.http.Cookie
+import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler
+import org.springframework.web.bind.annotation.*
+import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 import javax.validation.Valid
-import org.springframework.security.core.context.SecurityContext
-
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
-
-
-
-
-val invalidResponseEntity: ResponseEntity<Any>  = ResponseEntity.badRequest().body("invalid email or password")
-
 
 
 @RestController
 @RequestMapping("/session")
-class SessionController(val userService: UserService, val passwordEncoder: PasswordEncoder) {
+class SessionController(
+    val userService: UserService,
+    val passwordEncoder: PasswordEncoder,
+    val jwtTokenProvider: JwtTokenProvider,
+    val authenticationManager: AuthenticationManager
+    ) {
 
     @PostMapping("/sign_up")
     @PreAuthorize("permitAll()")
@@ -42,18 +41,33 @@ class SessionController(val userService: UserService, val passwordEncoder: Passw
     }
 
     @PostMapping("/sign_in")
-    fun signIn(@Valid @RequestBody data: SignInDTO, response: HttpServletResponse, authService: AuthService): ResponseEntity<Any> {
-        val user = userService.getUserByEmail(data.email)
-            ?: return invalidResponseEntity
+    @PreAuthorize("permitAll()")
+    fun signIn(@Valid @RequestBody body: SignInDTO): ResponseEntity<Any> {
+        try {
+            authenticationManager?.authenticate(
+                UsernamePasswordAuthenticationToken(
+                    body.email,
+                    body.password
+                )
+            )
+            val user: User = userService.getUserByEmail(body.email)
+                ?: throw UsernameNotFoundException("User doesn't exists")
 
-//        if (user.password == passwordEncoder.encode(data.password)) {
-//            return invalidResponseEntity
-//        }
+            val token: String = jwtTokenProvider.generateToken(body.email)
+            val response: MutableMap<String, String> = HashMap()
 
-        val issuer = user.id.toString()
+            response["email"] = body.email
+            response["token"] = token
+            return ResponseEntity.ok(response)
+        } catch (e: AuthenticationException) {
+            return ResponseEntity("Invalid email/password combination", HttpStatus.FORBIDDEN)
+        } catch (e: JwtAuthenticationException){
+            return ResponseEntity(e.message, HttpStatus.UNAUTHORIZED)
+        }
+    }
 
-        val token = authService.buildToken(issuer)
-
-        return ResponseEntity.ok(token)
+    @PostMapping("/signOut")
+    fun signOut(req: HttpServletRequest, res: HttpServletResponse) {
+       SecurityContextLogoutHandler().logout(req, res, null)
     }
 }

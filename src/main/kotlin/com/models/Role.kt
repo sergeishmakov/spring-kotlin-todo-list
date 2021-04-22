@@ -5,10 +5,13 @@ import java.util.stream.Collectors
 
 
 enum class Role(private val permissions: Set<Permission>) {
-    USER(setOf(Permission.DEVELOPERS_READ)), ADMIN(
+    USER(setOf(Permission.USERS_READ, Permission.USERS_WRITE)),
+    ADMIN(
         setOf(
-            Permission.DEVELOPERS_READ,
-            Permission.DEVELOPERS_WRITE
+            Permission.USERS_READ,
+            Permission.USERS_WRITE,
+            Permission.ADMINS_READ,
+            Permission.ADMINS_WRITE
         )
     );
 

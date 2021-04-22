@@ -1,6 +1,6 @@
 package com.models
 
 enum class Permission(val permission: String) {
-    DEVELOPERS_READ("developers:read"), DEVELOPERS_WRITE("developers:write");
+    USERS_READ("users:read"), USERS_WRITE("users:write"), ADMINS_READ("admins:read"), ADMINS_WRITE("admins:write");
 
 }

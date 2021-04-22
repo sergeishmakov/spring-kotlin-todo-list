@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("api/users")
-@PreAuthorize("hasRole('USER')")
+@PreAuthorize("hasAuthority('users:read')")
 class UsersController(val userService: UserService) {
 
   @GetMapping("hello")
