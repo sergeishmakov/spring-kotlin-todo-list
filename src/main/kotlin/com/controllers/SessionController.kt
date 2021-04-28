@@ -1,9 +1,8 @@
 package com.controllers
 
+import com.dtos.RefreshTokenDto
 import com.dtos.SignInDTO
 import com.models.User
-import com.repositories.UserRepository
-import com.security.JwtAuthenticationException
 import com.security.JwtTokenProvider
 import com.services.UserService
 import org.springframework.http.HttpStatus
@@ -61,13 +60,26 @@ class SessionController(
             return ResponseEntity.ok(response)
         } catch (e: AuthenticationException) {
             return ResponseEntity("Invalid email/password combination", HttpStatus.FORBIDDEN)
-        } catch (e: JwtAuthenticationException){
-            return ResponseEntity(e.message, HttpStatus.UNAUTHORIZED)
         }
+    }
+
+    @PostMapping("/refresh_token")
+    fun refreshToken(@RequestBody body: RefreshTokenDto): ResponseEntity<Any>{
+        if(!jwtTokenProvider.validate(body.token)) return ResponseEntity("Invalid token", HttpStatus.FORBIDDEN)
+        val user = userService.getUserByEmail(jwtTokenProvider.getUserEmail(body.token))
+            ?: return ResponseEntity("user not found", HttpStatus.FORBIDDEN)
+        val token: String = jwtTokenProvider.generateToken(user.email)
+        val response: MutableMap<String, String> = HashMap()
+
+        response["email"] = user.email
+        response["token"] = token
+        return ResponseEntity.ok(response)
     }
 
     @PostMapping("/signOut")
     fun signOut(req: HttpServletRequest, res: HttpServletResponse) {
        SecurityContextLogoutHandler().logout(req, res, null)
     }
+
+
 }
