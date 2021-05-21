@@ -32,7 +32,7 @@ class JwtTokenProvider (){
     }
 
     fun isExpiredToken(token: String): Boolean {
-        return !getExpiration(token).before(Date())
+        return getExpiration(token).before(Date())
     }
 
     val logger: Logger = LoggerFactory.getLogger(JwtTokenProvider::class.java)

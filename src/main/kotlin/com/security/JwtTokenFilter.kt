@@ -1,5 +1,6 @@
 package com.security
 
+import com.dtos.SafeUser
 import com.repositories.UserRepository
 import org.springframework.http.HttpHeaders
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
@@ -25,17 +26,26 @@ class JwtTokenFilter(val userRepository: UserRepository,  val tokenProvider: Jwt
     ) {
         val token = tokenProvider.resolveToken(request)
 
-        if (!tokenProvider.validate(token) && tokenProvider.isExpiredToken(token)) {
-            filterChain.doFilter(request, response)
-            return
+        if(token.isEmpty()) return filterChain.doFilter(request, response)
+
+        if(!tokenProvider.validate(token)){
+            return filterChain.doFilter(request, response)
         }
 
-        val userDetails = userRepository
+        if (tokenProvider.isExpiredToken(token)) {
+            return filterChain.doFilter(request, response)
+        }
+
+        val user = userRepository
             .findByEmail(tokenProvider.getUserEmail(token))
+            ?: return filterChain.doFilter(request, response)
+
+
+        val userDetails = SecurityUser.fromUser(user)
 
         val authentication = UsernamePasswordAuthenticationToken(
             userDetails, null,
-            userDetails?.role?.authorities
+            user?.role?.authorities
         )
         authentication.details = WebAuthenticationDetailsSource().buildDetails(request)
         SecurityContextHolder.getContext().authentication = authentication
